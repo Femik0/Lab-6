@@ -1,75 +1,64 @@
 package SirenkoAlexandr_2kurs_10gruppa;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import javax.swing.JPanel;
-import javax.swing.Timer;
-@SuppressWarnings("serial")
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
 public class Field extends JPanel {
-    // Флаг приостановленности движения
-    private boolean paused;
-    // Динамический список скачущих мячей
+
     private ArrayList<BouncingBall> balls = new ArrayList<BouncingBall>(10);
-    // Класс таймер отвечает за регулярную генерацию событий ActionEvent
-// При создании его экземпляра используется анонимный класс,
-// реализующий интерфейс ActionListener
+
     private Timer repaintTimer = new Timer(10, new ActionListener() {
         public void actionPerformed(ActionEvent ev) {
-// Задача обработчика события ActionEvent - перерисовка окна
-            repaint();
+            Field.this.repaint();
         }
     });
-    // Конструктор класса BouncingBall
-    public Field() {
-// Установить цвет заднего фона белым
-        setBackground(Color.WHITE);
-// Запустить таймер
+
+    public Field(){
+        setBackground(Color.BLACK);
         repaintTimer.start();
     }
-    // Унаследованный от JPanel метод перерисовки компонента
-    public void paintComponent(Graphics g) {
-// Вызвать версию метода, унаследованную от предка
-        super.paintComponent(g);
-        Graphics2D canvas = (Graphics2D) g;
-// Последовательно запросить прорисовку от всех мячей из списка
+
+    public void addBall(){
+        balls.add(new BouncingBall(this));
+    }
+
+    public void paintComponent(Graphics gr) {
+        super.paintComponent(gr);
+        Graphics2D canvas = (Graphics2D) gr;
         for (BouncingBall ball: balls) {
             ball.paint(canvas);
         }
     }
-    // Метод добавления нового мяча в список
-    public void addBall() {
-//Заключается в добавлении в список нового экземпляра BouncingBall
-// Всю инициализацию положения, скорости, размера, цвета
-// BouncingBall выполняет сам в конструкторе
-        balls.add(new BouncingBall(this));
-    }
 
-    // Метод синхронизированный, т.е. только один поток может
-// одновременно быть внутри
     public synchronized void pause() {
-// Включить режим паузы
-        paused = true;
+        for (BouncingBall ball: balls){
+            ball.setPaused();
+        }
     }
-    // Метод синхронизированный, т.е. только один поток может
-// одновременно быть внутри
     public synchronized void resume() {
-// Выключить режим паузы
-        paused = false;
-// Будим все ожидающие продолжения потоки
-        notifyAll();
+        for (BouncingBall ball: balls){
+            ball.resumePaused();
+            notify();
+        }
     }
-    // Синхронизированный метод проверки, может ли мяч двигаться
-// (не включен ли режим паузы?)
-    public synchronized void canMove(BouncingBall ball) throws
-            InterruptedException {
-        if (paused) {
-// Если режим паузы включен, то поток, зашедший
-// внутрь данного метода, засыпает
+    public synchronized void pauseGreen() {
+        for (BouncingBall ball: balls) {
+            if(ball.getColor().getGreen() >= 2*(ball.getColor().getBlue() + ball.getColor().getRed())) {
+                ball.setPaused();
+            }
+        }
+    }
+    public synchronized void canMove(BouncingBall ball)
+            throws InterruptedException{
+        if (ball.isPaused()) {
             wait();
         }
     }
+
 }
