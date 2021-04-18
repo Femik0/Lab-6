@@ -1,11 +1,5 @@
 package SirenkoAlexandr_2kurs_10gruppa;
 
-<<<<<<< HEAD
-public class Main {
-
-    public static void main(String[] args) {
-	// write your code here
-=======
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -90,6 +84,5 @@ public class Main extends JFrame {
         Main frame = new Main();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
->>>>>>> 150d3d3... Last version
     }
 }
